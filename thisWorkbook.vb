@@ -1,15 +1,39 @@
 Option Explicit
 
-Public Sub ShowAssignmentForm()
-    Dim i As Integer
-    Dim ciName As String
+Dim ciCollection As New Collection
+Dim agentCollection As New Collection
 
-    For i = 1 To getLastCIRow()
-        ciName = Sheets("Matrix").Cells(i, 1)
-        addCiNameToCIBox (ciName)
-    Next i
+Public Sub ShowAssignmentForm()
+    initializeCICollection
+    initializeAgentCollection
+
+    initializeCIBox
+
     AssignmentForm.Show
+
+    Set ciCollection = Nothing
+    Set agentCollection = Nothing
+
 End Sub
+
+Private Sub initializeCICollection()
+    Dim currentCellLine As Integer
+    For currentCellLine = 2 To getLastCIRow()
+        Dim ciName As String
+        ciName = getCiNameAtLine(currentCellLine)
+        ciCollection.Add (ciName)
+    Next currentCellLine
+End Sub
+
+Private Sub initializeAgentCollection()
+End Sub
+
+Private Sub initializeCIBox()
+End Sub
+
+Private Function getCiNameAtLine(line As Integer) As String
+    getCiNameAtLine = Sheets("Matrix").Cells(line, 1)
+End Function
 
 Private Sub addCiNameToCIBox(name As String)
     If name <> "" Then
@@ -24,3 +48,4 @@ End Function
 Private Function getLastAgentColumn() As Integer
     getLastAgentColumn = Sheets("Matrix").Cells(1, Columns.Count).End(xlToLeft).column
 End Function
+
