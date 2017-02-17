@@ -1,12 +1,22 @@
 Private Sub AssignButton_Click()
-    Debug.Print ListAgent.Value
+    Dim ciLine As Integer
+    Dim agentColumn As Integer
+    Dim ratio As Double
+    Dim nbTicketsForCISelected As Integer
+    Dim grandTotalForAgent As Integer
+    
     For r = 0 To ListAgent.ListCount - 1
-    If ListAgent.Selected(r) Then
-        Sheets("Total").Cells(10, 10) = "coucou"
-        Debug.Print "You selected row #" & r + 1
-        Debug.Print ListAgent.List(r, 1)
-    End If
-Next
+        If ListAgent.Selected(r) Then
+            ciLine = ThisWorkbook.getCILine(CI.Value)
+            agentColumn = ThisWorkbook.getColumnByAgentName(ListAgent.List(r))
+            addOneTicketToAgent ciLine, agentColumn
+            nbTicketsForCISelected = Sheets(ThisWorkbook.TotalSheetName).Cells(ciLine, agentColumn)
+            grandTotalForAgent = getGrandTotalForAgent(agentColumn)
+            ratio = getRatio(nbTicketsForCISelected, grandTotalForAgent)
+            updateRatioInListAgent r, ratio
+            updateTotalInListAgent r, nbTicketsForCISelected
+        End If
+    Next
 End Sub
 
 Private Sub CI_Change()
@@ -16,41 +26,34 @@ Private Sub CI_Change()
     Dim nbAgent As Integer
     Dim agentName As String
     Dim agentColumn As Integer
-
+    Dim nbTicketsForCISelected As Integer
+    Dim ratio As Double
+    Dim grandTotalForAgent As Integer
+    Dim idLastAgentAdded As Integer
+    
     ciName = CI.Value
-    Set ciRange = Worksheets("Matrix").Range("A1:A10000").Find(ciName, lookat:=xlPart)
-    ciLine = ciRange.Row
+    ciLine = ThisWorkbook.getCILine(CI.Value)
     ListAgent.Clear
     
     nbAgent = getLastAgentColumn
     For agentColumn = 2 To nbAgent
-        agentName = Sheets("Matrix").Cells(1, agentColumn)
-        If IsNumeric(Sheets("Matrix").Cells(ciLine, agentColumn)) Then
+        agentName = Sheets(ThisWorkbook.MatrixSheetName).Cells(1, agentColumn)
+        If IsNumeric(Sheets(ThisWorkbook.MatrixSheetName).Cells(ciLine, agentColumn)) Then
                 
-            If Sheets("Matrix").Cells(ciLine, agentColumn) > 0 Then
-                Dim idLastAgentAdded As Integer
+            If Sheets(ThisWorkbook.MatrixSheetName).Cells(ciLine, agentColumn) > 0 Then
                 idLastAgentAdded = addAgentToListAgent(agentName)
-                
-                Dim totalTicketsForCISelected As Integer
-                Dim ratio As Double
-                Dim grandTotalForAgent As Integer
-                
-                totalTicketsForCISelected = Sheets("Total").Cells(ciLine, agentColumn)
+                nbTicketsForCISelected = Sheets(ThisWorkbook.TotalSheetName).Cells(ciLine, agentColumn)
                 grandTotalForAgent = getGrandTotalForAgent(agentColumn)
-                ratio = 0
-    
-                If grandTotalForAgent > 0 Then
-                    ratio = Round(totalTicketsForCISelected / grandTotalForAgent * 100, 2)
-                End If
-                updateRatioInListAgent idLastAgentAdded, ratio
-                updateTotalInListAgent idLastAgentAdded, totalTicketsForCISelected
+                ratio = getRatio(nbTicketsForCISelected, grandTotalForAgent)
+                updateRatioInListAgent idLastAgentAdded - 1, ratio
+                updateTotalInListAgent idLastAgentAdded - 1, nbTicketsForCISelected
             End If
         End If
     Next agentColumn
 End Sub
 
 Private Function getLastAgentColumn() As Integer
-    getLastAgentColumn = Sheets("Matrix").Cells(1, Columns.Count).End(xlToLeft).column
+    getLastAgentColumn = Sheets(ThisWorkbook.MatrixSheetName).Cells(1, Columns.Count).End(xlToLeft).column
 End Function
 
 Private Function addAgentToListAgent(agentName As String) As Integer
@@ -60,14 +63,28 @@ Private Function addAgentToListAgent(agentName As String) As Integer
     addAgentToListAgent = ListAgent.ListCount
 End Function
 
-Private Sub updateTotalInListAgent(id As Integer, totalTicket As Integer)
-    ListAgent.List(ListAgent.ListCount - 1, 2) = totalTicket
+Private Sub addOneTicketToAgent(ciLine As Integer, agentColumn As Integer)
+    Sheets(ThisWorkbook.TotalSheetName).Cells(ciLine, agentColumn) = Sheets(ThisWorkbook.TotalSheetName).Cells(ciLine, agentColumn) + 1
 End Sub
 
-Private Sub updateRatioInListAgent(idLastAgentAdded As Integer, ratio As Double)
-    ListAgent.List(ListAgent.ListCount - 1, 1) = ratio
+Private Sub updateTotalInListAgent(ByVal id As Integer, totalTicket As Integer)
+    ListAgent.List(id, 3) = totalTicket
+End Sub
+
+Private Sub updateRatioInListAgent(ByVal idLastAgentAdded As Integer, ratio As Double)
+    ListAgent.List(idLastAgentAdded, 1) = ratio
 End Sub
 
 Private Function getGrandTotalForAgent(agentColumn As Integer) As Integer
-    getGrandTotalForAgent = Application.WorksheetFunction.Sum(Range(Sheets("Total").Cells(2, agentColumn), Sheets("Total").Cells(ThisWorkbook.getLastCIRow, agentColumn)))
+    getGrandTotalForAgent = Application.WorksheetFunction.Sum(Range(Sheets(ThisWorkbook.TotalSheetName).Cells(2, agentColumn), Sheets(ThisWorkbook.TotalSheetName).Cells(ThisWorkbook.getLastCIRow, agentColumn)))
+End Function
+
+Private Function getRatio(nbTicketsForCISelected As Integer, grandTotalForAgent As Integer) As Double
+    Dim ratio As Double
+    ratio = 0
+
+    If grandTotalForAgent > 0 Then
+        ratio = Round(nbTicketsForCISelected / grandTotalForAgent * 100, 2)
+    End If
+    getRatio = ratio
 End Function

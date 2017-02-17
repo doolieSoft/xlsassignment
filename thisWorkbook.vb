@@ -2,11 +2,11 @@ Option Explicit
 
 Dim ciCollection As New Collection
 Dim agentCollection As New Collection
-Dim MatrixSheetName As String
-Dim TotalSheetName As String
+Public MatrixSheetName As String
+Public TotalSheetName As String
 
 Public Sub ShowAssignmentForm()
-    MatrixSheetName = "Matrix"
+    MatrixSheetName = "Matrix Ratio"
     TotalSheetName = "Total"
     
     initializeCICollection
@@ -17,6 +17,7 @@ Public Sub ShowAssignmentForm()
 
     Set ciCollection = Nothing
     Set agentCollection = Nothing
+    Set AssignmentForm = Nothing
 End Sub
 
 Private Sub initializeCICollection()
@@ -60,7 +61,36 @@ Private Function getAgentNameAtColumn(column As Integer) As String
     getAgentNameAtColumn = Sheets(MatrixSheetName).Cells(1, column)
 End Function
 
+Public Function getColumnByAgentName(agentNameToFind As String) As Integer
+    Dim currentAgent As String
+    Dim currentCellColumn As Integer
+    currentCellColumn = 2
+    
+    currentAgent = Sheets(MatrixSheetName).Cells(1, currentCellColumn)
+    While currentAgent <> agentNameToFind And currentCellColumn <= getLastAgentColumn()
+        currentCellColumn = currentCellColumn + 1
+        currentAgent = Sheets(MatrixSheetName).Cells(1, currentCellColumn)
+    Wend
+    If currentAgent = agentNameToFind Then
+        getColumnByAgentName = currentCellColumn
+    End If
+End Function
+
 Private Function getLastAgentColumn() As Integer
     getLastAgentColumn = Sheets(MatrixSheetName).Cells(1, Columns.Count).End(xlToLeft).column
 End Function
 
+Public Function getCILine(ciNameToFind As String) As Integer
+    Dim currentCI As String
+    Dim currentCellLine As Integer
+    currentCellLine = 2
+    
+    currentCI = Sheets(MatrixSheetName).Cells(currentCellLine, 1)
+    While currentCI <> ciNameToFind And currentCellLine <= getLastCIRow()
+        currentCellLine = currentCellLine + 1
+        currentCI = Sheets(MatrixSheetName).Cells(currentCellLine, 1)
+    Wend
+    If currentCI = ciNameToFind Then
+        getCILine = currentCellLine
+    End If
+End Function
