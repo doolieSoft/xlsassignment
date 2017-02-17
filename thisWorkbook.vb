@@ -1,13 +1,15 @@
 Option Explicit
 
-Dim ciCollection As New Collection
-Dim agentCollection As New Collection
+Dim ciCollection As Collection
+Dim agentCollection As Collection
 Public MatrixSheetName As String
 Public TotalSheetName As String
 
 Public Sub ShowAssignmentForm()
     MatrixSheetName = "Matrix Ratio"
     TotalSheetName = "Total"
+    Set ciCollection = New Collection
+    Set agentCollection = New Collection
     
     initializeCICollection
     initializeAgentCollection
