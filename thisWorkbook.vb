@@ -29,6 +29,10 @@ Private Sub initializeAgentCollection()
 End Sub
 
 Private Sub initializeCIBox()
+    Dim Item As Variant
+    For Each Item In ciCollection
+        AssignmentForm.CI.AddItem (Item)
+    Next Item
 End Sub
 
 Private Function getCiNameAtLine(line As Integer) As String
