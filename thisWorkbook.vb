@@ -28,7 +28,9 @@ Private Sub initializeCICollection()
     For currentCellLine = 2 To getLastCIRow()
         Dim ciName As String
         ciName = getCiNameAtLine(currentCellLine)
-        ciCollection.Add (ciName)
+        If ciName <> "" Then
+            ciCollection.Add (ciName)
+        End If
     Next currentCellLine
 End Sub
 
