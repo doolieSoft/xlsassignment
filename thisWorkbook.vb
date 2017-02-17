@@ -3,17 +3,19 @@ Option Explicit
 Dim ciCollection As New Collection
 Dim agentCollection As New Collection
 
+Dim MatrixSheetName As String
+
 Public Sub ShowAssignmentForm()
+    MatrixSheetName = "Matrix"
+    
     initializeCICollection
     initializeAgentCollection
-
     initializeCIBox
 
     AssignmentForm.Show
 
     Set ciCollection = Nothing
     Set agentCollection = Nothing
-
 End Sub
 
 Private Sub initializeCICollection()
@@ -36,20 +38,14 @@ Private Sub initializeCIBox()
 End Sub
 
 Private Function getCiNameAtLine(line As Integer) As String
-    getCiNameAtLine = Sheets("Matrix").Cells(line, 1)
+    getCiNameAtLine = Sheets(MatrixSheetName).Cells(line, 1)
 End Function
 
-Private Sub addCiNameToCIBox(name As String)
-    If name <> "" Then
-        AssignmentForm.CI.AddItem (name)
-    End If
-End Sub
-
 Private Function getLastCIRow() As Integer
-    getLastCIRow = Sheets("Matrix").Range("A" & Rows.Count).End(xlUp).Row
+    getLastCIRow = Sheets(MatrixSheetName).Range("A" & Rows.Count).End(xlUp).Row
 End Function
 
 Private Function getLastAgentColumn() As Integer
-    getLastAgentColumn = Sheets("Matrix").Cells(1, Columns.Count).End(xlToLeft).column
+    getLastAgentColumn = Sheets(MatrixSheetName).Cells(1, Columns.Count).End(xlToLeft).column
 End Function
 
